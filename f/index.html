@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>הזמנה לצ'דו</title>
+<meta property="og:title" content="הזמנה להיות חברים בצ'דו">
+<meta property="og:description" content="לכל חפץ יש עוד סיפור">
+<!--
+  Friend invite link: https://cedo.co.il/f/?c=<CODE>. A phone with Cedo
+  installed never sees this page — iOS and Android open the app instead
+  (.well-known/apple-app-site-association, .well-known/assetlinks.json, and
+  associatedDomains / intentFilters in the app's app.json). This page is for
+  everyone else: the right store, and the code kept on screen for after the
+  install.
+-->
+<style>
+  :root { --bg:#EDF2ED; --card:#F4F8F4; --ink:#1A2E1A; --ink2:#3D5A3D; --ink3:#7A9A7A; --accent:#2D5A2D; --accentDark:#1A3D1A; }
+  * { box-sizing: border-box; }
+  body { margin:0; min-height:100vh; background:var(--bg); color:var(--ink);
+         font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+         display:flex; align-items:center; justify-content:center; padding:24px 16px; }
+  .card { width:100%; max-width:420px; background:var(--card); border-radius:28px;
+          padding:32px 22px 26px; text-align:center; box-shadow:0 6px 30px rgba(26,46,26,.08); }
+  .logo { font-family: Georgia, "Times New Roman", serif; font-style:italic; font-size:44px;
+          color:var(--accent); margin:0 0 6px; }
+  h1 { font-size:21px; margin:6px 0 8px; }
+  p { color:var(--ink2); font-size:15px; line-height:1.6; margin:0 0 18px; }
+  .code { display:inline-block; font-size:30px; font-weight:700; letter-spacing:6px; color:var(--accentDark);
+          background:#fff; border-radius:16px; padding:12px 22px; margin:4px 0 6px; direction:ltr;
+          user-select:all; -webkit-user-select:all; }
+  .hint { font-size:12.5px; color:var(--ink3); margin:0 0 20px; }
+  .btn { display:block; width:100%; border:0; border-radius:28px; padding:15px; font-size:16px; font-weight:600;
+         text-decoration:none; cursor:pointer; margin-top:10px; font-family:inherit; }
+  .primary { background:var(--accent); color:#fff; }
+  .secondary { background:transparent; color:var(--accent); border:1.5px solid var(--accent); }
+  .stores { margin-top:18px; font-size:13.5px; color:var(--ink3); }
+  .stores a { color:var(--accent); }
+  .toast { visibility:hidden; font-size:13px; color:var(--accent); margin-top:8px; }
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="logo">Cedo</div>
+  <h1>הוזמנתם להיות חברים בצ'דו</h1>
+  <p>חפצים שממשיכים הלאה, מאנשים לידכם. אחרי שמתקינים, מזינים את הקוד הזה במסך החברים:</p>
+  <div class="code" id="code">------</div>
+  <div class="hint">פרופיל ← החברים שלי ← קיבלתם קוד מחבר/ה?</div>
+
+  <button class="btn primary" id="get">העתקת הקוד והורדת צ'דו</button>
+  <a class="btn secondary" id="open" href="#">כבר יש לי את צ'דו — פתיחה</a>
+  <div class="toast" id="toast">הקוד הועתק</div>
+
+  <div class="stores">
+    <a href="https://apps.apple.com/il/app/id6789488528">App Store</a>
+    &nbsp;·&nbsp;
+    <a href="https://play.google.com/store/apps/details?id=com.cedo.cedo">Google Play</a>
+  </div>
+</main>
+<script>
+  (function () {
+    var IOS = 'https://apps.apple.com/il/app/id6789488528';
+    var ANDROID = 'https://play.google.com/store/apps/details?id=com.cedo.cedo';
+    // https://cedo.co.il/f/?c=K7M2QF (a query, because GitHub Pages has no
+    // rewrites — /f/ is this file, whatever code follows)
+    var q = location.search.match(/[?&]c=([A-Za-z0-9]{6})/);
+    var p = location.pathname.match(/\/f\/([A-Za-z0-9]{6})/);
+    var code = q ? q[1].toUpperCase() : p ? p[1].toUpperCase() : '';
+    var codeEl = document.getElementById('code');
+    if (code) codeEl.textContent = code; else codeEl.style.display = 'none';
+
+    var ua = navigator.userAgent || '';
+    var isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    var isAndroid = /Android/i.test(ua);
+    var store = isIOS ? IOS : isAndroid ? ANDROID : null;
+
+    // Some in-app browsers (Instagram, Facebook) do not hand links to apps.
+    // The app's own scheme reaches the same screen as the link.
+    document.getElementById('open').href = 'cedo://f?c=' + code;
+
+    function copy(text) {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text);
+      } catch (e) {}
+      return new Promise(function (resolve) {
+        var t = document.createElement('textarea');
+        t.value = text; document.body.appendChild(t); t.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(t); resolve();
+      });
+    }
+
+    document.getElementById('get').addEventListener('click', function () {
+      var go = function () { if (store) location.href = store; };
+      if (!code) { go(); return; }
+      Promise.resolve(copy(code)).then(function () {
+        document.getElementById('toast').style.visibility = 'visible';
+        setTimeout(go, 600);
+      }, go);
+    });
+    if (!store) document.getElementById('get').textContent = 'העתקת הקוד';
+  })();
+</script>
+</body>
+</html>

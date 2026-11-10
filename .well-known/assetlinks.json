@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.cedo.cedo",
+      "sha256_cert_fingerprints": [
+        "CF:7D:5C:03:D4:91:27:C4:04:40:E3:98:C7:29:39:C0:2B:78:26:83:74:AC:6E:B1:94:0F:2E:8B:84:A1:5E:AB"
+      ]
+    }
+  }
+]
