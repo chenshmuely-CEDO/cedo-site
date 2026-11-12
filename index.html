@@ -196,6 +196,22 @@ s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 fbq('init', '4755075114725238');
 fbq('track', 'PageView');
+
+document.addEventListener('click', function(e) {
+  var el = e.target.closest('a, button');
+  if (!el) return;
+  var href = (el.href || '').toLowerCase();
+  var label = (el.getAttribute('aria-label') || el.innerText || '').toLowerCase();
+  if (
+    href.includes('play.google.com') ||
+    href.includes('apps.apple.com') ||
+    href.includes('itunes.apple.com') ||
+    label.includes('google play') ||
+    label.includes('app store')
+  ) {
+    fbq('track', 'Contact');
+  }
+});
 </script>
 <noscript><img height="1" width="1" style="display:none"
 src="https://www.facebook.com/tr?id=4755075114725238&ev=PageView&noscript=1"
